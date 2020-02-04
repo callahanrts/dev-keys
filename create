@@ -1,0 +1,45 @@
+#!/bin/bash
+
+crt::authority() {
+  CA="${1:-rootCA}"
+  openssl genrsa -des3 -out $CA.key 2048
+  openssl req -x509 -new -nodes -key $CA.key -sha256 -days 1024 -out $CA.pem
+}
+
+crt::cert() {
+  KEY=${1:-my-key}
+  openssl req -new -sha256 -nodes -out $KEY.csr -newkey rsa:2048 -keyout $KEY.key -config <( cat config/$KEY.csr.cnf )
+  openssl x509 -req -in $KEY.csr -CA rootCA.pem -CAkey rootCA.key -CAcreateserial -out $KEY.crt -days 500 -sha256 -extfile config/$KEY.ext
+}
+
+crt::help() {
+  echo "
+  Create development SSL Certificates
+  Usage:
+    ./create [COMMAND] [args]
+
+  Commands:
+    # Creates a new certificate authority
+    authority [CA_Name (optional)]
+
+    # Create a new certificate
+    cert [Cert_Name] [CA_Name (unless default)]
+
+    help      Show this menu
+  "
+}
+
+crt::main() {
+  case $1 in
+    authority) crt::authority ${@:2} ;;
+    cert)      crt::cert ${@:2} ;;
+    *)         crt::help ;;
+  esac
+}
+
+crt::main "$@"
+
+unset -f crt::main
+unset -f crt::cert
+unset -f crt::authority
+unset -f crt::help

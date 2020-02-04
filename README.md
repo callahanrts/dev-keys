@@ -10,7 +10,7 @@ To create a new certificate authority:
 
 ```bash
 # Create a new CA
-./create_ca
+./create authority
 
 # Enter a password when prompted. This will be used when
 # signing new certificates
@@ -62,12 +62,13 @@ DNS.1 = localhost
 DNS.2 = your-domain.local
 ```
 
-The next step is to run the `make_key` script with your domain as the first
-argument.
+The next step is to create the certificate for your domain.
 
 ```bash
 # This will create the certificate
-./make_key your-domain.local
+# Make sure that your-domain.local matches the naming scheme of the files you
+# created in the config/ folder
+./create certificate your-domain.local
 ```
 
 # How to Use Created Certificates
