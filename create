@@ -1,15 +1,16 @@
 #!/bin/bash
 
 crt::authority() {
-  CA="${1:-rootCA}"
+  CA=${1:-rootCA}
   openssl genrsa -des3 -out $CA.key 2048
   openssl req -x509 -new -nodes -key $CA.key -sha256 -days 1024 -out $CA.pem
 }
 
 crt::cert() {
   KEY=${1:-my-key}
+  CA=${2:-rootCA}
   openssl req -new -sha256 -nodes -out $KEY.csr -newkey rsa:2048 -keyout $KEY.key -config <( cat config/$KEY.csr.cnf )
-  openssl x509 -req -in $KEY.csr -CA rootCA.pem -CAkey rootCA.key -CAcreateserial -out $KEY.crt -days 500 -sha256 -extfile config/$KEY.ext
+  openssl x509 -req -in $KEY.csr -CA $CA.pem -CAkey $CA.key -CAcreateserial -out $KEY.crt -days 500 -sha256 -extfile config/$KEY.ext
 }
 
 crt::help() {
